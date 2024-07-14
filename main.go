@@ -7,5 +7,10 @@ import "ececillo/advent-of-code-2023/day1"
 // import "ececillo/advent-of-code-2023/day3"
 
 func main() {
-	day1.PrintHello()
+	result := day1.ReadCalibrationFileAndReturnSum("data/day1.txt")
+	if result != 0 {
+		println(result)
+	} else {
+		println("No result")
+	}
 }

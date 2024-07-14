@@ -5,22 +5,19 @@ import (
 	"testing"
 )
 
-// ExtractCalibrationValueFromString calls day1.ExtractCalibrationValue
-// with a string as input, returning an integer value.
 func TestExtractCalibrationValueFromString(t *testing.T) {
 	input := "pqr3stu8vwx"
 	want := 38
-	calibrationValue := day1.ExtractCalibrationValue(input)
-	if want != calibrationValue {
-		t.Fatalf(`ExtractCalibrationValue(input) = %q, %v, nil`, calibrationValue, want)
+	calibrationValue, err := day1.ExtractCalibrationValueFromString(input)
+	if want != calibrationValue || err != nil {
+		t.Fatalf(`ExtractCalibrationValueFromString returned %q, %v, want match for %#q, nil`, calibrationValue, err, want)
 	}
 }
 
-// TestHelloEmpty calls greetings.Hello with an empty string,
-// checking for an error.
-// func TestExtractCalibrationValueNoDigit(t *testing.T) {
-// 	msg, err := Hello("")
-// 	if msg != "" || err == nil {
-// 		t.Fatalf(`Hello("") = %q, %v, want "", error`, msg, err)
-// 	}
-// }
+func TestExtractCalibrationWithNoValue(t *testing.T) {
+	input := "pqrstuvwx"
+	calibrationValue, err := day1.ExtractCalibrationValueFromString(input)
+	if calibrationValue != 0 || err != nil {
+		t.Fatalf(`ExtractCalibrationValueFromString throw error %q, %v`, calibrationValue, err)
+	}
+}

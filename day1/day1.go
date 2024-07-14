@@ -1,56 +1,79 @@
 package day1
 
 import (
-	"errors"
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 )
 
-func ExtractDigitGivenRegexExpr(input string, regex string) string {
-	re := regexp.MustCompile(regex)
-	stringDigit := re.FindString(input)
-	return stringDigit
+func ExtractCalibrationValueFromString(calibrationLine string) (int, error) {
+	re := regexp.MustCompile(`[0-9]+`)
+	arrayOfStringNumbers := re.FindAllString(calibrationLine, -1)
+
+	if len(arrayOfStringNumbers) == 0 {
+		return 0, nil
+	}
+
+	sum, err := sumDigits(arrayOfStringNumbers)
+	if err != nil {
+		return -1, err
+	}
+
+	fmt.Println("Sum", sum)
+
+	return sum, nil
 }
 
-func combineStringDigit(firstStringDigit string, secondStringDigit string) (string, error) {
-	stringDigit := ""
-	if len(firstStringDigit) == 0 && len(secondStringDigit) == 0 {
-		return "", errors.New("no digit found")
-	} else if len(firstStringDigit) == 0 && len(secondStringDigit) != 0 {
-		stringDigit = secondStringDigit + secondStringDigit
-	} else if len(firstStringDigit) != 0 && len(secondStringDigit) == 0 {
-		stringDigit = firstStringDigit + firstStringDigit
+func sumDigits(digits []string) (int, error) {
+	sum := 0
+	digit := ""
+	if len(digits) == 1 {
+		firstDigit := digits[0]
+		if len(firstDigit) == 2 {
+			digit = string(firstDigit)
+		} else {
+			digit = string(firstDigit[0]) + string(firstDigit[0])
+		}
 	} else {
-		stringDigit = firstStringDigit + secondStringDigit
+		firstDigit := digits[0]
+		secondDigit := digits[len(digits)-1]
+		digit = string(firstDigit[0]) + string(secondDigit[len(secondDigit)-1])
 	}
 
-	return stringDigit, nil
+	digitInt, err := strconv.Atoi(digit)
+	if err != nil {
+		return -1, fmt.Errorf("error when converting string to int: %v", err)
+	}
+	sum += digitInt
+
+	return sum, nil
 }
 
-func ExtractCalibrationValue(input string) int {
-	firstStringDigit := ExtractDigitGivenRegexExpr(input, "(^|\\s)([0-9]+)($|\\s)")
-	secondStringDigit := ExtractDigitGivenRegexExpr(input, "((\\d+)(?!.*\\d))")
-
-	stringDigit, err := combineStringDigit(firstStringDigit, secondStringDigit)
+func ReadCalibrationFileAndReturnSum(calibrationFilePath string) int {
+	file, err := os.Open(calibrationFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer file.Close()
 
-	digit, err := strconv.Atoi(stringDigit)
-	// Exit on error
-	if err != nil {
-		fmt.Println("Error when converting string to int")
-		log.Fatal(err)
+	scanner := bufio.NewScanner(file)
+	sumOfAllCalibrationValue := 0
+	for scanner.Scan() {
+		if scanner.Text() == "" {
+			continue
+		}
+		calibrationValue, err := ExtractCalibrationValueFromString(scanner.Text())
+		if err != nil {
+			log.Fatal(err)
+		}
+		sumOfAllCalibrationValue += calibrationValue
 	}
 
-	return digit
-}
-
-// func ReadCalibrationFile() []int {
-// }
-
-func PrintHello() {
-	fmt.Println("Hello, World!")
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return sumOfAllCalibrationValue
 }
